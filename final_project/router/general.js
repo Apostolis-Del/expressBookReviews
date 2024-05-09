@@ -17,27 +17,76 @@ public_users.get('/', function (req, res) {
 
 
 // Get book details based on ISBN
-public_users.get('/isbn/:isbn',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
- });
+public_users.get('/isbn/:isbn', function (req, res) {
+    const isbn = parseInt(req.params.isbn);
+    const book = books[isbn];
+
+    if (book) {
+        res.status(200).json({ book });
+    } else {
+        res.status(404).json({ message: "Book not found" });
+    }
+});
+
   
 // Get book details based on author
-public_users.get('/author/:author',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+public_users.get('/author/:author', function (req, res) {
+    const author = req.params.author;
+    const authorBooks = [];
+
+    // Iterate through the books object to find books with matching author
+    for (const isbn in books) {
+        if (books.hasOwnProperty(isbn)) {
+            const book = books[isbn];
+            if (book.author.toLowerCase() === author.toLowerCase()) {
+                authorBooks.push({ isbn, ...book });
+            }
+        }
+    }
+
+    if (authorBooks.length > 0) {
+        res.status(200).json({ authorBooks });
+    } else {
+        res.status(404).json({ message: "Books by this author not found" });
+    }
 });
+
 
 // Get all books based on title
-public_users.get('/title/:title',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+public_users.get('/title/:title', function (req, res) {
+    const title = req.params.title;
+    const titleBooks = [];
+
+    // Iterate through the books object to find books with matching title
+    for (const isbn in books) {
+        if (books.hasOwnProperty(isbn)) {
+            const book = books[isbn];
+            if (book.title.toLowerCase() === title.toLowerCase()) {
+                titleBooks.push({ isbn, ...book });
+            }
+        }
+    }
+
+    if (titleBooks.length > 0) {
+        res.status(200).json({ titleBooks });
+    } else {
+        res.status(404).json({ message: "Books with this title not found" });
+    }
 });
 
+
 //  Get book review
-public_users.get('/review/:isbn',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+public_users.get('/review/:isbn', function (req, res) {
+    const isbn = parseInt(req.params.isbn);
+    const book = books[isbn];
+
+    if (book) {
+        const reviews = book.reviews;
+        res.status(200).json({ reviews });
+    } else {
+        res.status(404).json({ message: "Book not found" });
+    }
 });
+
 
 module.exports.general = public_users;
