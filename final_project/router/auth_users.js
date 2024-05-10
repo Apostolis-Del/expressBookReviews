@@ -34,8 +34,8 @@ let books = require("./booksdb.js");
 const regd_users = express.Router();
 
 let users = [{
-    "username":"apostolos",
-    "password":"apostoloou"
+    "username":"del",
+    "password":"del"
 }];
 
 const isValid = (username) => {
@@ -74,9 +74,9 @@ regd_users.post("/login", (req, res) => {
 regd_users.put("/auth/review/:isbn", (req, res) => {
     const isbn = parseInt(req.params.isbn);
     const review = req.query.review;
+    console.log(req,"to authorization")
     const username = req.session.authorization ? req.session.authorization.username : null;
 
-    // Check if username is present in session
     if (!username) {
         return res.status(401).json({ message: "User not logged in" });
     }
@@ -100,7 +100,30 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
         return res.status(200).json({ message: "Review added successfully" });
     }
 });
+regd_users.delete("/auth/review/:isbn", (req, res) => {
+    const isbn = parseInt(req.params.isbn);
+    const username = req.session.authorization ? req.session.authorization.username : null;
 
+    // Check if username is present in session
+    // if (!username) {
+    //     return res.status(401).json({ message: "User not logged in" });
+    // }
+
+    // Check if book exists
+    if (!books[isbn]) {
+        return res.status(404).json({ message: "Book not found" });
+    }
+
+    // Check if the user has posted a review for the specified ISBN
+    if (books[isbn].reviews && books[isbn].reviews[username]) {
+        // If the user has posted a review, delete it
+        delete books[isbn].reviews[username];
+        return res.status(200).json({ message: "Review deleted successfully" });
+    } else {
+        // If the user has not posted a review for the specified ISBN
+        return res.status(404).json({ message: "Review not found" });
+    }
+});
 
 module.exports.authenticated = regd_users;
 module.exports.isValid = isValid;
